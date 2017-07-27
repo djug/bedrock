@@ -30,6 +30,7 @@ from bedrock.firefox.forms import SendToDeviceWidgetForm
 from bedrock.mozorg.util import HttpResponseJSON
 from bedrock.newsletter.forms import NewsletterFooterForm
 from bedrock.releasenotes import version_re
+from bedrock.utils.views import VariationMixin
 from bedrock.wordpress.views import BlogPostsView
 
 
@@ -406,7 +407,17 @@ class FirstrunView(l10n_utils.LangFilesMixin, TemplateView):
         return [template]
 
 
-class WhatsnewView(l10n_utils.LangFilesMixin, TemplateView):
+class WhatsnewView(VariationMixin, l10n_utils.LangFilesMixin, TemplateView):
+    template_context_variations = ['a', 'b', 'c']
+
+    # locales *not* targeted by experiment
+    excluded_locales = {'de', 'en-GB', 'en-US', 'en-ZA', 'es-ES', 'fr', 'id',
+                        'ja', 'ja-JP-mac', 'pl', 'pt-BR', 'ru', 'zh-CN',
+                        'zh-TW'}
+
+    # calculate non-excluded locales
+    variation_locales = list(set(settings.PROD_LANGUAGES) - excluded_locales)
+
     def get_context_data(self, **kwargs):
         ctx = super(WhatsnewView, self).get_context_data(**kwargs)
 
@@ -415,6 +426,9 @@ class WhatsnewView(l10n_utils.LangFilesMixin, TemplateView):
         match = re.match(r'\d{1,2}', version)
         ctx['version'] = version
         ctx['num_version'] = int(match.group(0)) if match else ''
+
+        # add variation locales to template for experiment switch
+        ctx['variation_locales'] = self.variation_locales
 
         return ctx
 
