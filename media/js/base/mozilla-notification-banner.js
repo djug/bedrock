@@ -26,7 +26,7 @@ if (typeof Mozilla === 'undefined') {
     };
 
     /**
-     * Generates cookie expiry data defaulting to 21 days.
+     * Generates cookie expiry date defaulting to 21 days.
      * @return {Date}
      */
     NotificationBanner.cookieExpiresDate = function(date) {
@@ -69,9 +69,12 @@ if (typeof Mozilla === 'undefined') {
     NotificationBanner.close = function() {
         var notification = document.querySelector('.notification-banner');
         var close = notification.querySelector('.notification-banner-close');
+        var confirm = notification.querySelector('.notification-banner-confirm');
 
         if (notification) {
             close.removeEventListener('click', NotificationBanner.close, false);
+            confirm.removeEventListener('click', NotificationBanner.confirm, false);
+
             document.body.removeChild(notification);
             NotificationBanner.setCookie(NotificationBanner.COOKIE_INTERACTION_VALUE);
             NotificationBanner.trackGAClose();

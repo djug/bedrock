@@ -8,7 +8,6 @@
 // Notification Banner
 
 .notification-banner {
-    @include background-size(auto, 100%);
     @include gradient-horizontal($start-color: #dad9d8, $end-color: #f4f2f2);
     background-color: #dad9d8;
     background-image: url('/media/img/notification/background.png');
