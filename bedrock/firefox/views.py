@@ -408,8 +408,6 @@ class FirstrunView(l10n_utils.LangFilesMixin, TemplateView):
 
 
 class WhatsnewView(VariationMixin, l10n_utils.LangFilesMixin, TemplateView):
-    template_context_variations = ['a', 'b', 'c']
-
     # locales *not* targeted by experiment
     excluded_locales = {'de', 'en-GB', 'en-US', 'en-ZA', 'es-ES', 'fr', 'id',
                         'ja', 'ja-JP-mac', 'pl', 'pt-BR', 'ru', 'zh-CN',
@@ -441,14 +439,19 @@ class WhatsnewView(VariationMixin, l10n_utils.LangFilesMixin, TemplateView):
         if oldversion.startswith('rv:'):
             oldversion = oldversion[3:]
 
+        variation = self.request.GET.get('v', None)
+
         channel = detect_channel(version)
         if channel == 'alpha':
             template = 'firefox/dev-whatsnew.html'
         elif channel == 'nightly':
             template = 'firefox/nightly_whatsnew.html'
         elif show_54_whatsnew(version):
-            # ja, zh-CN, and zh-TW have locale-specific templates
-            template = 'firefox/whatsnew/fx54/whatsnew-54.html'
+            if (variation in ['b', 'c'] and locale in self.variation_locales):
+                template = 'firefox/whatsnew/fx54/whatsnew-54-{0}.html'.format(variation)
+            else :
+                # ja, zh-CN, and zh-TW have locale-specific templates
+                template = 'firefox/whatsnew/fx54/whatsnew-54.html'
         elif show_50_whatsnew(version):
             # zh-TW has locale-specific template: whatsnew-50.zh-TW.html
             template = 'firefox/whatsnew/whatsnew-50.html'

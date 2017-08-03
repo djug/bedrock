@@ -79,27 +79,33 @@ if (typeof window.Mozilla === 'undefined') {
             return newURL;
         },
         init: function() {
-            var xhr = new XMLHttpRequest();
+            // TESTING HAXX
+            if (window.location.search.indexOf('country=') > 0) {
+                var params = new URLSearchParams(window.location.search);
+                var country = params.get('country');
+                WNP54.updateStoreLinks(country);
+            } else {
+                var xhr = new XMLHttpRequest();
 
-            xhr.onload = function(r) {
-                // make sure status is in the acceptable range
-                if (r.target.status >= 200 && r.target.status < 300) {
-                    var country;
+                xhr.onload = function(r) {
+                    // make sure status is in the acceptable range
+                    if (r.target.status >= 200 && r.target.status < 300) {
+                        var country;
 
-                    try {
-                        country = JSON.parse(r.target.response).country_code.toLowerCase();
-                    } catch (e) {
-                        country = 'none';
+                        try {
+                            country = JSON.parse(r.target.response).country_code.toLowerCase();
+                        } catch (e) {
+                            country = 'none';
+                        }
+
+                        WNP54.updateStoreLinks(country);
                     }
+                };
 
-                    WNP54.updateStoreLinks(country);
-                }
-            };
-
-            xhr.open('GET', '/country-code.json');
-            // must come after open call above for IE 10 & 11
-            xhr.timeout = 2000;
-            xhr.send();
+                xhr.open('GET', '/country-code.json');
+                xhr.timeout = 2000;
+                xhr.send();
+            }
         }
     };
 
